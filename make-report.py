@@ -16,7 +16,7 @@ def likely_size(size):
 
 
 products = [row for row in all_products if row.get("purchase_ready") and row.get("image") and any(likely_size(size) for size in row.get("available_sizes", [])) and int(ratings.get(row["candidate_id"], {}).get("stars", 0)) >= 3]
-new_or_lower = [row for row in products if row["url"] not in old or row["price"] < old[row["url"]].get("price", float("inf"))]
+new_or_lower = [row for row in products if row["url"] not in old or row["price"] < old[row["url"]].get("price", float("inf")) or row.get("evidence_version", 1) > old[row["url"]].get("evidence_version", 0)]
 
 
 def card(row):

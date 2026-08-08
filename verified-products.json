@@ -1,6 +1,7 @@
 [
   {
     "candidate_id": "KVERIFIED01",
+    "evidence_version": 2,
     "profile_id": "heren-sportkleding-zweetvlekken",
     "category": "sportshirt",
     "url": "https://www.adidas.nl/designed-for-training-workout-t-shirt/IK9725.html",
@@ -30,6 +31,7 @@
   },
   {
     "candidate_id": "KVERIFIED02",
+    "evidence_version": 2,
     "profile_id": "heren-sportkleding-zweetvlekken",
     "category": "korte sportbroek",
     "url": "https://www.adidas.nl/designed-for-training-workout-short/IK9723.html",
