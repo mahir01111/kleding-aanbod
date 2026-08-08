@@ -12,7 +12,7 @@ if not source:
     print("Geen producten voor beoordeling; AI niet aangeroepen.")
     raise SystemExit(0)
 
-fields = ("candidate_id", "category", "name", "brand", "price", "sale", "seller", "description", "color", "material", "rating_value", "review_count", "review_text", "local_score", "evidence", "concerns", "size_advice")
+fields = ("candidate_id", "category", "name", "brand", "price", "sale", "seller", "description", "color", "material", "rating_value", "review_count", "review_text", "local_score", "evidence", "concerns", "size_advice", "available_sizes", "image")
 candidates = [{key: row.get(key) for key in fields} for row in source[:20]]
 ids = [row["candidate_id"] for row in candidates]
 fallback = {

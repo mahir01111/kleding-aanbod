@@ -11,7 +11,11 @@ history = json.loads((BASE / "listing-history.json").read_text(encoding="utf-8")
 old = history.get("products", {})
 ratings = {row["candidate_id"]: row for row in selection.get("ratings", [])}
 winner_id = selection.get("winner_id")
-products = [row for row in all_products if row.get("purchase_ready") and int(ratings.get(row["candidate_id"], {}).get("stars", 0)) >= 3]
+def likely_size(size):
+    return bool(__import__("re").match(r"^(?:xl|xxl|2xl)(?:\s|$)", str(size).lower()))
+
+
+products = [row for row in all_products if row.get("purchase_ready") and row.get("image") and any(likely_size(size) for size in row.get("available_sizes", [])) and int(ratings.get(row["candidate_id"], {}).get("stars", 0)) >= 3]
 new_or_lower = [row for row in products if row["url"] not in old or row["price"] < old[row["url"]].get("price", float("inf"))]
 
 
@@ -31,6 +35,7 @@ def card(row):
     <p><b>Bewijs tegen zichtbare zweetplekken:</b> {html.escape(proof)}</p>
     <p><b>Zekerheidsniveau:</b> {html.escape(row.get('sweat_mark_confidence', 'onbekend'))} — geen absolute garantie</p>
     <p><b>Maatadvies:</b> {html.escape(row.get('size_advice', 'Controleer de merkmaattabel'))}</p>
+    <p><b>Nu aangetroffen maten:</b> {html.escape(', '.join(row.get('available_sizes', [])))}</p>
     <p><b>Beoordeling:</b> {html.escape(rating.get('reason', 'Lokale productscore'))}</p>
     {f'<p class="warn"><b>Aandachtspunt:</b> {html.escape(concern)}</p>' if concern else ''}
     <a href="{html.escape(row['url'], quote=True)}">Bekijk bij de winkel</a></div></article>'''

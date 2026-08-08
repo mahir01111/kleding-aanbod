@@ -146,12 +146,23 @@ def product_from_page(url):
         reviews = [reviews]
     review_text = " ".join(str(r.get("reviewBody") or "") for r in reviews[:12] if isinstance(r, dict))
     aggregate = product.get("aggregateRating") or {}
+    available_sizes = []
+    for node in nodes:
+        node_type = node.get("@type") if isinstance(node, dict) else None
+        if node_type != "Product" or not node.get("size"):
+            continue
+        node_offer = node.get("offers") or {}
+        if isinstance(node_offer, list):
+            node_offer = node_offer[0] if node_offer else {}
+        if "instock" in str(node_offer.get("availability", "")).lower():
+            available_sizes.append(str(node["size"]))
     return {
         "url": url, "name": str(product.get("name") or "").strip(), "brand": str(brand).strip(),
         "description": BeautifulSoup(str(product.get("description") or ""), "html.parser").get_text(" ", strip=True),
         "color": str(product.get("color") or ""), "material": str(product.get("material") or ""),
         "review_text": review_text[:2500], "rating_value": aggregate.get("ratingValue"),
         "review_count": aggregate.get("reviewCount") or aggregate.get("ratingCount"),
+        "available_sizes": sorted(set(available_sizes)),
         "image": str(image), "price": price, "currency": offer.get("priceCurrency", "EUR"),
         "availability": str(offer.get("availability") or ""), "seller": urllib.parse.urlparse(url).netloc.removeprefix("www."),
     }
@@ -207,6 +218,7 @@ def score(item, profile):
     item["purchase_ready"] = True
     item["sweat_mark_confidence"] = "sterk" if review_sweat else "redelijk"
     item["research_basis"] = ["donkere of patroonrijke kleur", "expliciet vochtafvoerend/sneldrogend", "synthetisch technisch materiaal"] + (["relevante gebruikersreview"] if review_sweat else [])
+    item["purchase_ready"] = bool(item.get("image") and any(re.match(r"^(?:xl|xxl|2xl)(?:\s|$)", size.lower()) for size in item.get("available_sizes", [])))
     return item
 
 

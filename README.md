@@ -22,6 +22,8 @@ Volledige onzichtbaarheid van zweet kan niet op afstand worden gegarandeerd. De 
 
 De automatische collector combineert browseronderzoek met `verified-products.json`. In dat bestand staan alleen handmatig tegen officiële productpagina's gecontroleerde kandidaten. Daarmee blijft er een betrouwbare basis wanneer een winkel geautomatiseerde paginatoegang tijdelijk blokkeert.
 
+Een product verschijnt uitsluitend wanneer er een productfoto beschikbaar is en ten minste één aannemelijke maat uit XL, XXL/2XL of een passende Short/Tall-variant op voorraad is aangetroffen. Donkergroen en andere zeer donkere kleuren zijn toegestaan wanneer materiaal, kleurdiepte en overige bewijzen de kans op zichtbaar nat-droogcontrast voldoende beperken.
+
 ## Lokaal testen
 
 ```powershell

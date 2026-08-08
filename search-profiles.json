@@ -28,7 +28,7 @@
       ],
       "required_any": ["sport", "training", "running", "fitness", "workout", "dri-fit", "dry fit", "short", "korte broek"],
       "blocked": ["100% katoen", "katoen 100%", "lichtgrijs", "light grey", "lichtblauw", "pastel", "cream", "wit"],
-      "safe_colors": ["zwart", "black", "donkerblauw", "navy", "midnight", "antraciet", "dark", "print", "pattern", "gemêleerd"],
+      "safe_colors": ["zwart", "black", "donkerblauw", "navy", "midnight", "antraciet", "dark", "print", "pattern", "gemêleerd", "donkergroen", "dark green", "forest green", "bottle green", "night cargo", "diepgroen", "donkerpaars", "burgundy"],
       "discovery_pages": [
         "https://www.asics.com/nl/nl-nl/heren-kleding/c/as10300000/",
         "https://www.asics.com/nl/nl-nl/training-gym-kleding/c/as403020000/",
