@@ -12,9 +12,9 @@ now = datetime.now().astimezone()
 payload = {
     "from": "Kleding aanbod <onboarding@resend.dev>",
     "to": [os.environ["CLOTHING_MAIL_TO"]],
-    "subject": f"Kleding-aanbod – {len(products)} passende sportshirts – {now:%d-%m-%Y}",
+    "subject": f"Kleding-aanbod – {len(products)} passende sportkledingstukken – {now:%d-%m-%Y}",
     "html": report,
-    "text": f"Er zijn {len(products)} passende sportshirts gevonden. Open deze mail in HTML-weergave voor foto's en links."
+    "text": f"Er zijn {len(products)} passende sportkledingstukken gevonden. Open deze mail in HTML-weergave voor foto's en links."
 }
 request = urllib.request.Request("https://api.resend.com/emails", data=json.dumps(payload).encode(), method="POST", headers={
     "Authorization": f"Bearer {os.environ['CLOTHING_RESEND_API_KEY']}",
