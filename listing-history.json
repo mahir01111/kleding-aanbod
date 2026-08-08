@@ -1,13 +1,15 @@
 {
-  "updated_at": "2026-08-08T21:29:52.722976+00:00",
+  "updated_at": "2026-08-08T21:33:36.308987+00:00",
   "products": {
     "https://www.adidas.nl/designed-for-training-workout-t-shirt/IK9725.html": {
       "price": 40.0,
-      "name": "adidas Designed for Training Workout T-shirt"
+      "name": "adidas Designed for Training Workout T-shirt",
+      "evidence_version": 2
     },
     "https://www.adidas.nl/designed-for-training-workout-short/IK9723.html": {
       "price": 45.0,
-      "name": "adidas Designed for Training Workout Short"
+      "name": "adidas Designed for Training Workout Short",
+      "evidence_version": 2
     }
   }
 }
