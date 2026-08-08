@@ -39,7 +39,9 @@ jobs:
           git push
       - name: Installeer pakket
         if: steps.reserve.outputs.allowed == 'true'
-        run: pip install --disable-pip-version-check -r requirements.txt
+        run: |
+          pip install --disable-pip-version-check -r requirements.txt
+          python -m playwright install --with-deps chromium
       - name: Zoek en filter kleding
         if: steps.reserve.outputs.allowed == 'true'
         run: python find-clothing.py
