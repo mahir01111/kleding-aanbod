@@ -31,11 +31,17 @@
       "safe_colors": ["zwart", "black", "donkerblauw", "navy", "midnight", "antraciet", "dark", "print", "pattern", "gemêleerd"],
       "discovery_pages": [
         "https://www.asics.com/nl/nl-nl/heren-kleding/c/as10300000/",
-        "https://www.asics.com/nl/nl-nl/training-gym-kleding/c/as403020000/"
+        "https://www.asics.com/nl/nl-nl/training-gym-kleding/c/as403020000/",
+        "https://www.adidas.nl/heren-zwart-sneldrogend-sportshirts",
+        "https://www.zalando.nl/sportshirts-heren-sale/",
+        "https://www.zalando.nl/sportshorts-heren-sale/",
+        "https://www.all4running.nl/hardloopkleding/hardloopshirts/heren",
+        "https://www.supersales.nl/sport-vrije-tijd/heren-sportshirts"
       ],
       "retailer_domains": [
         "nike.com", "adidas.nl", "underarmour.nl", "puma.com", "decathlon.nl",
-        "zalando.nl", "aboutyou.nl", "intersport.nl", "aktiesport.nl", "voetbalshop.nl", "asics.com"
+        "zalando.nl", "aboutyou.nl", "intersport.nl", "aktiesport.nl", "voetbalshop.nl", "asics.com",
+        "all4running.nl", "supersales.nl"
       ]
     }
   ]

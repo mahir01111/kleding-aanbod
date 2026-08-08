@@ -20,6 +20,8 @@ De workflow controleert tweemaal per dag, maar zoekt maximaal eens per 72 uur en
 
 Volledige onzichtbaarheid van zweet kan niet op afstand worden gegarandeerd. De selectie minimaliseert het risico en moet onzekerheid expliciet tonen. Zonder voldoende onderbouwing wordt geen product gemaild.
 
+De automatische collector combineert browseronderzoek met `verified-products.json`. In dat bestand staan alleen handmatig tegen officiële productpagina's gecontroleerde kandidaten. Daarmee blijft er een betrouwbare basis wanneer een winkel geautomatiseerde paginatoegang tijdelijk blokkeert.
+
 ## Lokaal testen
 
 ```powershell

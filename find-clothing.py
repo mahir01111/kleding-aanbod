@@ -1,5 +1,7 @@
 import hashlib
+import atexit
 import json
+import os
 import re
 import time
 import urllib.parse
@@ -13,19 +15,68 @@ BASE = Path(__file__).parent
 CONFIG = json.loads((BASE / "search-profiles.json").read_text(encoding="utf-8"))
 PROFILES = CONFIG["profiles"]
 UA = "Mozilla/5.0 (compatible; KledingAanbod/1.0)"
+_playwright = None
+_browser = None
+
+
+def browser_get(url):
+    global _playwright, _browser
+    from playwright.sync_api import sync_playwright
+    if _browser is None:
+        _playwright = sync_playwright().start()
+        launch = {"headless": True}
+        local_chromes = [
+            r"C:\Program Files\Google\Chrome\Application\chrome.exe",
+            r"C:\Program Files (x86)\Google\Chrome\Application\chrome.exe",
+        ]
+        local_chrome = next((path for path in local_chromes if os.path.exists(path)), None)
+        if local_chrome:
+            launch["executable_path"] = local_chrome
+        _browser = _playwright.chromium.launch(**launch)
+    page = _browser.new_page(user_agent=UA, locale="nl-NL")
+    try:
+        page.goto(url, wait_until="domcontentloaded", timeout=15000)
+        page.wait_for_timeout(700)
+        return page.content()
+    finally:
+        page.close()
+
+
+def close_browser():
+    if _browser:
+        _browser.close()
+    if _playwright:
+        _playwright.stop()
+
+
+atexit.register(close_browser)
 
 
 def get(url, timeout=25):
     request = urllib.request.Request(url, headers={"User-Agent": UA, "Accept-Language": "nl-NL,nl;q=0.9,en;q=0.7"})
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        return response.read().decode(response.headers.get_content_charset() or "utf-8", errors="replace")
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return response.read().decode(response.headers.get_content_charset() or "utf-8", errors="replace")
+    except Exception as error:
+        print(f"Direct ophalen geblokkeerd; browserfallback voor {url}: {error}")
+        return browser_get(url)
 
 
 def search(query, domain):
-    url = "https://www.bing.com/search?format=rss&q=" + urllib.parse.quote(f"site:{domain} {query}")
-    root = ET.fromstring(get(url))
-    links = [item.findtext("link") for item in root.findall(".//item") if item.findtext("link")]
-    return [link for link in links if urllib.parse.urlparse(link).netloc.lower().removeprefix("www.").endswith(domain)]
+    url = "https://lite.duckduckgo.com/lite/?q=" + urllib.parse.quote(f"site:{domain} {query}")
+    soup = BeautifulSoup(get(url), "html.parser")
+    links = []
+    for anchor in soup.select("a[href]"):
+        link = anchor.get("href", "")
+        if link.startswith("//"):
+            link = "https:" + link
+        parsed = urllib.parse.urlparse(link)
+        if parsed.netloc.endswith("duckduckgo.com"):
+            link = urllib.parse.parse_qs(parsed.query).get("uddg", [""])[0]
+        host = urllib.parse.urlparse(link).netloc.lower().removeprefix("www.")
+        if host.endswith(domain):
+            links.append(link)
+    return list(dict.fromkeys(links))
 
 
 def walk_json(value):
@@ -48,7 +99,32 @@ def product_from_page(url):
             continue
     product = next((node for node in nodes if "Product" in ([node.get("@type")] if isinstance(node.get("@type"), str) else node.get("@type", []))), None)
     if not product:
-        return None
+        def meta(*keys):
+            for key in keys:
+                tag = soup.find("meta", attrs={"property": key}) or soup.find("meta", attrs={"name": key})
+                if tag and tag.get("content"):
+                    return tag["content"].strip()
+            return ""
+        name = meta("og:title", "twitter:title") or (soup.title.get_text(" ", strip=True) if soup.title else "")
+        description = meta("og:description", "description", "twitter:description")
+        visible = soup.get_text(" ", strip=True)
+        raw_price = meta("product:price:amount", "og:price:amount")
+        if not raw_price:
+            match = re.search(r"(?:€|EUR)\s*([0-9]{1,3}(?:[.,][0-9]{2})?)", visible)
+            raw_price = match.group(1) if match else ""
+        try:
+            price = float(raw_price.replace(",", "."))
+        except (TypeError, ValueError):
+            return None
+        host = urllib.parse.urlparse(url).netloc.lower().removeprefix("www.")
+        brand = next((brand for brand in ("Adidas", "Nike", "Under Armour", "Puma", "Reebok", "ASICS") if brand.lower() in f"{name} {description}".lower()), host.split(".")[0].title())
+        return {
+            "url": url, "name": name[:240], "brand": brand,
+            "description": f"{description} {visible}"[:7000], "color": meta("product:color", "color"),
+            "material": "", "review_text": "", "rating_value": None, "review_count": None,
+            "image": meta("og:image", "twitter:image"), "price": price,
+            "currency": meta("product:price:currency") or "EUR", "availability": meta("product:availability"), "seller": host,
+        }
     offer = product.get("offers") or {}
     if isinstance(offer, list):
         offer = offer[0] if offer else {}
@@ -87,7 +163,8 @@ def discover_page(url, allowed_domains):
     for anchor in soup.select("a[href]"):
         link = urllib.parse.urljoin(url, anchor.get("href"))
         host = urllib.parse.urlparse(link).netloc.lower().removeprefix("www.")
-        if any(host.endswith(domain) for domain in allowed_domains) and ("/p/" in link or "/product/" in link or "/products/" in link):
+        product_shape = "/p/" in link or "/product/" in link or "/products/" in link or link.split("?", 1)[0].endswith(".html")
+        if any(host.endswith(domain) for domain in allowed_domains) and product_shape:
             links.append(link.split("?", 1)[0].split("#", 1)[0])
     return list(dict.fromkeys(links))
 
@@ -133,16 +210,23 @@ def score(item, profile):
     return item
 
 
-results = []
-seen = set()
+verified_path = BASE / "verified-products.json"
+results = json.loads(verified_path.read_text(encoding="utf-8")) if verified_path.exists() else []
+seen = {row["url"] for row in results}
+if os.environ.get("VERIFIED_ONLY", "").lower() == "true":
+    (BASE / "products.json").write_text(json.dumps(results, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"{len(results)} gecontroleerde kledingproducten opgeslagen.")
+    raise SystemExit(0)
 for profile in (p for p in PROFILES if p.get("enabled")):
     discovered = []
     for page in profile.get("discovery_pages", []):
         try:
-            discovered.extend(discover_page(page, profile["retailer_domains"]))
+            page_links = discover_page(page, profile["retailer_domains"])
+            print(f"{len(page_links)} productlinks op collectiepagina {page}", flush=True)
+            discovered.extend(page_links[:12])
         except Exception as error:
-            print(f"Collectiepagina overgeslagen ({page}): {error}")
-    for clean in list(dict.fromkeys(discovered))[:60]:
+            print(f"Collectiepagina overgeslagen ({page}): {str(error)[:300]}")
+    for clean in list(dict.fromkeys(discovered))[:30]:
         if clean in seen:
             continue
         seen.add(clean)
@@ -155,14 +239,16 @@ for profile in (p for p in PROFILES if p.get("enabled")):
         except Exception as error:
             print(f"Product overgeslagen ({clean}): {error}")
         time.sleep(0.08)
+    if len(results) >= 5:
+        continue
     for query in profile["queries"]:
-        for domain in profile["retailer_domains"]:
+        for domain in profile["retailer_domains"][:5]:
             try:
                 urls = search(query, domain)
             except Exception as error:
                 print(f"Zoeken mislukt voor {query!r} op {domain}: {error}")
                 continue
-            for url in urls[:4]:
+            for url in urls[:2]:
                 clean = url.split("#", 1)[0]
                 if clean in seen:
                     continue
