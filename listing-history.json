@@ -1,3 +1,13 @@
 {
-  "products": {}
+  "updated_at": "2026-08-08T21:16:15.594723+00:00",
+  "products": {
+    "https://www.adidas.nl/train-essentials-all-set-training-short/IB8161.html": {
+      "price": 13.2,
+      "name": "adidas Train Essentials All Set Training Short"
+    },
+    "https://www.adidas.nl/designed-for-training-workout-t-shirt/IK9725.html": {
+      "price": 40.0,
+      "name": "adidas Designed for Training Workout T-shirt"
+    }
+  }
 }
