@@ -1,0 +1,42 @@
+{
+  "shopper": {
+    "gender": "man",
+    "age": 38,
+    "height_cm": 183,
+    "weight_kg": 100,
+    "build": "gespierd",
+    "likely_sizes": ["XL", "XXL", "2XL"],
+    "fit_preference": "normaal of licht aansluitend, niet strak om borst en oksels",
+    "measurements_status": "borst, taille en heup nog niet gemeten"
+  },
+  "profiles": [
+    {
+      "id": "heren-sportkleding-zweetvlekken",
+      "enabled": true,
+      "name": "Heren sportkleding met minimale kans op zichtbare zweetvlekken",
+      "categories": ["sportshirt", "korte sportbroek"],
+      "sizes": ["XL", "XXL", "2XL"],
+      "max_price_eur": 100,
+      "sale_preferred_not_required": true,
+      "preferred_brands": ["Nike", "Adidas", "Under Armour", "Puma", "Reebok", "ASICS", "Decathlon"],
+      "queries": [
+        "heren performance sportshirt zwart sneldrogend",
+        "heren training t-shirt moisture wicking black",
+        "heren sportshirt dry fit donker print",
+        "heren korte sportbroek zwart sneldrogend",
+        "men training shorts moisture wicking black"
+      ],
+      "required_any": ["sport", "training", "running", "fitness", "workout", "dri-fit", "dry fit", "short", "korte broek"],
+      "blocked": ["100% katoen", "katoen 100%", "lichtgrijs", "light grey", "lichtblauw", "pastel", "cream", "wit"],
+      "safe_colors": ["zwart", "black", "donkerblauw", "navy", "midnight", "antraciet", "dark", "print", "pattern", "gemêleerd"],
+      "discovery_pages": [
+        "https://www.asics.com/nl/nl-nl/heren-kleding/c/as10300000/",
+        "https://www.asics.com/nl/nl-nl/training-gym-kleding/c/as403020000/"
+      ],
+      "retailer_domains": [
+        "nike.com", "adidas.nl", "underarmour.nl", "puma.com", "decathlon.nl",
+        "zalando.nl", "aboutyou.nl", "intersport.nl", "aktiesport.nl", "voetbalshop.nl", "asics.com"
+      ]
+    }
+  ]
+}
