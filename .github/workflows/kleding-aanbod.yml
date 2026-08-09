@@ -45,6 +45,9 @@ jobs:
       - name: Zoek en filter kleding
         if: steps.reserve.outputs.allowed == 'true'
         run: python find-clothing.py
+      - name: Analyseer prijs, reviews, maat en retourrisico
+        if: steps.reserve.outputs.allowed == 'true'
+        run: python analyze-products.py
       - name: Beoordeel via gratis AI met lokale fallback
         if: steps.reserve.outputs.allowed == 'true'
         env:
