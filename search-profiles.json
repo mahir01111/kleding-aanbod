@@ -24,12 +24,28 @@
         "heren training t-shirt moisture wicking black",
         "heren sportshirt dry fit donker print",
         "heren korte sportbroek zwart sneldrogend",
-        "men training shorts moisture wicking black"
+        "men training shorts moisture wicking black",
+        "heren gym shirt zwart polyester XL",
+        "heren fitness shirt donker vochtafvoerend 2XL",
+        "heren training shorts zwart XL voorraad"
       ],
       "required_any": ["sport", "training", "running", "fitness", "workout", "dri-fit", "dry fit", "short", "korte broek"],
       "blocked": ["100% katoen", "katoen 100%", "lichtgrijs", "light grey", "lichtblauw", "pastel", "cream", "wit"],
+      "seed_products": [
+        "https://www.nike.com/nl/t/dri-fit-legend-fitness-t-shirt-voor-heren-MmxrSJ",
+        "https://eu.puma.com/nl/nl/pd/pwrtrain-trainings-t-shirt-voor-heren/528527",
+        "https://www.decathlon.nl/p/trainings-t-shirt-heren-zwart/_/R-p-372361",
+        "https://www.underarmour.nl/nl-nl/p/ua-tech-2.0/1326413.html?dwvar_1326413_color=001",
+        "https://www.underarmour.nl/nl-nl/p/ua-performance-tech/1383878.html?dwvar_1383878_color=001"
+      ],
       "safe_colors": ["zwart", "black", "donkerblauw", "navy", "midnight", "antraciet", "dark", "print", "pattern", "gemêleerd", "donkergroen", "dark green", "forest green", "bottle green", "night cargo", "diepgroen", "donkerpaars", "burgundy"],
       "discovery_pages": [
+        "https://www.nike.com/nl/w/heren-training-en-gym-kleding-58jtoz6ymx6znik1",
+        "https://www.underarmour.nl/nl-nl/c/heren/kleding/",
+        "https://www.underarmour.nl/nl-nl/c/heren/kleding/korte-mouwen/",
+        "https://www.underarmour.nl/nl-nl/c/heren/kleding/shorts/",
+        "https://eu.puma.com/nl/nl/heren/kleding/sportkleding",
+        "https://www.decathlon.nl/heren/sportkleding",
         "https://www.asics.com/nl/nl-nl/heren-kleding/c/as10300000/",
         "https://www.asics.com/nl/nl-nl/training-gym-kleding/c/as403020000/",
         "https://www.adidas.nl/heren-zwart-sneldrogend-sportshirts",

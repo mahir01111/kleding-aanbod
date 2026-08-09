@@ -36,7 +36,7 @@ def browser_get(url):
     page = _browser.new_page(user_agent=UA, locale="nl-NL")
     try:
         page.goto(url, wait_until="domcontentloaded", timeout=15000)
-        page.wait_for_timeout(700)
+        page.wait_for_timeout(1500)
         return page.content()
     finally:
         page.close()
@@ -63,20 +63,48 @@ def get(url, timeout=25):
 
 
 def search(query, domain):
-    url = "https://lite.duckduckgo.com/lite/?q=" + urllib.parse.quote(f"site:{domain} {query}")
-    soup = BeautifulSoup(get(url), "html.parser")
     links = []
-    for anchor in soup.select("a[href]"):
-        link = anchor.get("href", "")
-        if link.startswith("//"):
-            link = "https:" + link
-        parsed = urllib.parse.urlparse(link)
-        if parsed.netloc.endswith("duckduckgo.com"):
-            link = urllib.parse.parse_qs(parsed.query).get("uddg", [""])[0]
-        host = urllib.parse.urlparse(link).netloc.lower().removeprefix("www.")
-        if host.endswith(domain):
-            links.append(link)
+    search_term = f"site:{domain} {query}"
+    # Twee onafhankelijke zoekroutes: blokkade of lege resultaten bij één bron stopt de winkel niet.
+    for url in (
+        "https://www.bing.com/search?format=rss&q=" + urllib.parse.quote(search_term),
+        "https://lite.duckduckgo.com/lite/?q=" + urllib.parse.quote(search_term),
+    ):
+        try:
+            page = get(url)
+            if "format=rss" in url:
+                root = ET.fromstring(page)
+                candidates = [node.text or "" for node in root.findall(".//item/link")]
+            else:
+                soup = BeautifulSoup(page, "html.parser")
+                candidates = [a.get("href", "") for a in soup.select("a[href]")]
+            for link in candidates:
+                if link.startswith("//"):
+                    link = "https:" + link
+                parsed = urllib.parse.urlparse(link)
+                if parsed.netloc.endswith("duckduckgo.com"):
+                    link = urllib.parse.parse_qs(parsed.query).get("uddg", [""])[0]
+                host = urllib.parse.urlparse(link).netloc.lower().removeprefix("www.")
+                if host.endswith(domain):
+                    links.append(link)
+        except Exception as error:
+            print(f"Zoekroute overgeslagen voor {domain}: {error}")
+        if links:
+            break
     return list(dict.fromkeys(links))
+
+
+def selectable_sizes(soup):
+    """Alleen zichtbaar selecteerbare maatknoppen tellen; maattabeltekst telt niet."""
+    sizes = []
+    for node in soup.select("button, option, input, label, [role='radio'], [role='option']"):
+        label = " ".join(filter(None, (node.get("aria-label"), node.get("value"), node.get_text(" ", strip=True))))
+        linked_input = node.find("input") if node.name == "label" else None
+        disabled = node.has_attr("disabled") or node.get("aria-disabled", "").lower() == "true" or "disabled" in node.get("class", []) or bool(linked_input and (linked_input.has_attr("disabled") or linked_input.get("aria-disabled", "").lower() == "true"))
+        match = re.search(r"(?<![A-Z0-9])(XXL|2XL|XL)(?:\s+(?:Short|Tall|\d+\s*CM))?(?![A-Z0-9])", label, re.I)
+        if match and not disabled:
+            sizes.append(match.group(0).strip())
+    return sorted(set(sizes))
 
 
 def walk_json(value):
@@ -89,15 +117,16 @@ def walk_json(value):
             yield from walk_json(child)
 
 
-def product_from_page(url):
-    soup = BeautifulSoup(get(url), "html.parser")
+def product_from_page(url, force_browser=False):
+    soup = BeautifulSoup(browser_get(url) if force_browser else get(url), "html.parser")
+    live_sizes = selectable_sizes(soup)
     nodes = []
     for script in soup.select('script[type="application/ld+json"]'):
         try:
             nodes.extend(walk_json(json.loads(script.string or script.get_text())))
         except (json.JSONDecodeError, TypeError):
             continue
-    product = next((node for node in nodes if "Product" in ([node.get("@type")] if isinstance(node.get("@type"), str) else node.get("@type", []))), None)
+    product = next((node for node in nodes if any(kind in ([node.get("@type")] if isinstance(node.get("@type"), str) else node.get("@type", [])) for kind in ("Product", "ProductGroup"))), None)
     if not product:
         def meta(*keys):
             for key in keys:
@@ -110,8 +139,8 @@ def product_from_page(url):
         visible = soup.get_text(" ", strip=True)
         raw_price = meta("product:price:amount", "og:price:amount")
         if not raw_price:
-            match = re.search(r"(?:€|EUR)\s*([0-9]{1,3}(?:[.,][0-9]{2})?)", visible)
-            raw_price = match.group(1) if match else ""
+            match = re.search(r"(?:€|EUR)\s*([0-9]{1,3}(?:[.,][0-9]{2})?)|([0-9]{1,3}(?:[.,][0-9]{2})?)\s*(?:€|EUR)", visible)
+            raw_price = next((group for group in match.groups() if group), "") if match else ""
         try:
             price = float(raw_price.replace(",", "."))
         except (TypeError, ValueError):
@@ -122,7 +151,7 @@ def product_from_page(url):
             "url": url, "name": name[:240], "brand": brand,
             "description": f"{description} {visible}"[:7000], "color": meta("product:color", "color"),
             "material": "", "review_text": "", "rating_value": None, "review_count": None,
-            "image": meta("og:image", "twitter:image"), "price": price,
+            "available_sizes": live_sizes, "image": meta("og:image", "twitter:image"), "price": price,
             "currency": meta("product:price:currency") or "EUR", "availability": meta("product:availability"), "seller": host,
         }
     offer = product.get("offers") or {}
@@ -136,16 +165,36 @@ def product_from_page(url):
         image = image[0] if image else ""
     if isinstance(image, dict):
         image = image.get("url", "")
+    if not image:
+        image_meta = soup.find("meta", attrs={"property": "og:image"}) or soup.find("meta", attrs={"name": "twitter:image"})
+        image = image_meta.get("content", "") if image_meta else ""
     price = offer.get("price") or offer.get("lowPrice")
     try:
         price = float(str(price).replace(",", "."))
     except (TypeError, ValueError):
         price = None
+    visible = soup.get_text(" ", strip=True)
+    if price is None:
+        price_match = re.search(r"(?:€|EUR)\s*([0-9]{1,3}(?:[.,][0-9]{2})?)|([0-9]{1,3}(?:[.,][0-9]{2})?)\s*(?:€|EUR)", visible)
+        price = float(next(group for group in price_match.groups() if group).replace(",", ".")) if price_match else None
     reviews = product.get("review") or []
     if isinstance(reviews, dict):
         reviews = [reviews]
     review_text = " ".join(str(r.get("reviewBody") or "") for r in reviews[:12] if isinstance(r, dict))
     aggregate = product.get("aggregateRating") or {}
+    variants = product.get("hasVariant") or []
+    if isinstance(variants, dict):
+        variants = [variants]
+    variant_color = next((str(v.get("color")) for v in variants if isinstance(v, dict) and v.get("color")), "")
+    positive_notes = product.get("positiveNotes") or []
+    if isinstance(positive_notes, str):
+        positive_notes = [positive_notes]
+    return_policy = product.get("hasMerchantReturnPolicy") or {}
+    return_days = return_policy.get("merchantReturnDays") if isinstance(return_policy, dict) else None
+    material = str(product.get("material") or "")
+    if not material:
+        material_match = re.search(r"(?:materiaal[^.%]{0,100})?\b(\d{2,3}%\s*(?:gerecycled\s+)?(?:polyester|polyamide|nylon))", visible, re.I)
+        material = material_match.group(1) if material_match else ""
     available_sizes = []
     for node in nodes:
         node_type = node.get("@type") if isinstance(node, dict) else None
@@ -158,11 +207,11 @@ def product_from_page(url):
             available_sizes.append(str(node["size"]))
     return {
         "url": url, "name": str(product.get("name") or "").strip(), "brand": str(brand).strip(),
-        "description": BeautifulSoup(str(product.get("description") or ""), "html.parser").get_text(" ", strip=True),
-        "color": str(product.get("color") or ""), "material": str(product.get("material") or ""),
+        "description": (BeautifulSoup(str(product.get("description") or ""), "html.parser").get_text(" ", strip=True) + " " + " ".join(map(str, positive_notes)) + (f" {return_days} dagen retour" if return_days else "")).strip(),
+        "color": str(product.get("color") or variant_color), "material": material,
         "review_text": review_text[:2500], "rating_value": aggregate.get("ratingValue"),
         "review_count": aggregate.get("reviewCount") or aggregate.get("ratingCount"),
-        "available_sizes": sorted(set(available_sizes)),
+        "available_sizes": sorted(set(available_sizes + live_sizes)),
         "image": str(image), "price": price, "currency": offer.get("priceCurrency", "EUR"),
         "availability": str(offer.get("availability") or ""), "seller": urllib.parse.urlparse(url).netloc.removeprefix("www."),
     }
@@ -176,17 +225,21 @@ def discover_page(url, allowed_domains):
         host = urllib.parse.urlparse(link).netloc.lower().removeprefix("www.")
         product_shape = "/p/" in link or "/product/" in link or "/products/" in link or link.split("?", 1)[0].endswith(".html")
         if any(host.endswith(domain) for domain in allowed_domains) and product_shape:
-            links.append(link.split("?", 1)[0].split("#", 1)[0])
+            clean = link.split("#", 1)[0]
+            if "dwvar_" not in clean:
+                clean = clean.split("?", 1)[0]
+            links.append(clean)
     return list(dict.fromkeys(links))
 
 
 def score(item, profile):
     text = f"{item['name']} {item['brand']} {item['description']} {item['color']} {item['material']} {item['review_text']}".lower()
+    product_text = f"{item['name']} {item['brand']} {item['description']} {item['color']} {item['material']}".lower()
     if item["price"] is None or item["price"] > profile["max_price_eur"]:
         return None
     if profile["required_any"] and not any(term.lower() in text for term in profile["required_any"]):
         return None
-    if any(term.lower() in text for term in profile["blocked"]):
+    if any(term.lower() in product_text for term in profile["blocked"]):
         return None
     points, evidence, concerns = 10, [], []
     signals = {
@@ -201,9 +254,9 @@ def score(item, profile):
             evidence.append(term)
     if item["brand"].lower() in {x.lower() for x in profile["preferred_brands"]}:
         points += 5
-    safe_color = any(x.lower() in text for x in profile.get("safe_colors", []))
-    technical = any(x in text for x in ("vochtafvoerend", "moisture wicking", "dri-fit", "dry fit", "sneldrogend", "quick dry", "actibreeze"))
-    synthetic = any(x in text for x in ("polyester", "polyamide", "nylon", "elastane", "elastaan"))
+    safe_color = any(x.lower() in product_text for x in profile.get("safe_colors", []))
+    technical = any(x in product_text for x in ("vochtafvoerend", "moisture wicking", "dri-fit", "dry fit", "sneldrogend", "quick dry", "actibreeze"))
+    synthetic = any(x in product_text for x in ("polyester", "polyamide", "nylon", "elastane", "elastaan"))
     if not safe_color or not technical or not synthetic:
         return None
     review_sweat = any(x in item.get("review_text", "").lower() for x in ("sweat", "zweet", "wet mark", "vochtplek", "sweat mark"))
@@ -212,7 +265,7 @@ def score(item, profile):
     if not any(x in text for x in ("zwart", "black", "gemêleerd", "print", "pattern")):
         concerns.append("Kleur/patroon biedt geen duidelijk bewijs tegen zichtbare zweetvlekken")
     item.update({"local_score": min(points, 100), "evidence": sorted(set(evidence)), "concerns": concerns})
-    item["category"] = "korte sportbroek" if any(x in text for x in ("short", "korte broek")) else "sportshirt"
+    item["category"] = "korte sportbroek" if any(x in product_text for x in ("shorts", "korte broek")) else "sportshirt"
     item["size_advice"] = "Waarschijnlijk XL of 2XL; alleen kopen na controle van borst/taille/heup in de merkmaattabel"
     item["sale"] = any(x in text for x in ("sale", "aanbieding", "korting", "van €", "original price"))
     item["purchase_ready"] = True
@@ -230,6 +283,18 @@ if os.environ.get("VERIFIED_ONLY", "").lower() == "true":
     print(f"{len(results)} gecontroleerde kledingproducten opgeslagen.")
     raise SystemExit(0)
 for profile in (p for p in PROFILES if p.get("enabled")):
+    for clean in profile.get("seed_products", []):
+        if clean in seen:
+            continue
+        seen.add(clean)
+        try:
+            item = product_from_page(clean, force_browser=True)
+            if item and (item := score(item, profile)):
+                item["profile_id"] = profile["id"]
+                item["candidate_id"] = "K" + hashlib.sha256(clean.encode()).hexdigest()[:8].upper()
+                results.append(item)
+        except Exception as error:
+            print(f"Vast winkelproduct overgeslagen ({clean}): {error}")
     discovered = []
     for page in profile.get("discovery_pages", []):
         try:
@@ -251,16 +316,15 @@ for profile in (p for p in PROFILES if p.get("enabled")):
         except Exception as error:
             print(f"Product overgeslagen ({clean}): {error}")
         time.sleep(0.08)
-    if len(results) >= 5:
-        continue
-    for query in profile["queries"]:
-        for domain in profile["retailer_domains"][:5]:
+    focused_queries = profile["queries"][:2] + [q for q in profile["queries"] if "short" in q.lower()][:1]
+    for query in focused_queries:
+        for domain in profile["retailer_domains"]:
             try:
                 urls = search(query, domain)
             except Exception as error:
                 print(f"Zoeken mislukt voor {query!r} op {domain}: {error}")
                 continue
-            for url in urls[:2]:
+            for url in urls[:3]:
                 clean = url.split("#", 1)[0]
                 if clean in seen:
                     continue
@@ -276,5 +340,13 @@ for profile in (p for p in PROFILES if p.get("enabled")):
                 time.sleep(0.1)
 
 results.sort(key=lambda row: (not row.get("sale", False), -row["local_score"], row["price"]))
-(BASE / "products.json").write_text(json.dumps(results[:30], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-print(f"{len(results[:30])} passende kledingproducten opgeslagen.")
+# Eén merk mag de kandidaatpool niet vullen; maximaal zes varianten per merk vóór DeepSeek.
+diverse, brand_counts = [], {}
+for row in results:
+    brand = (row.get("brand") or row.get("seller") or "onbekend").lower()
+    if brand_counts.get(brand, 0) >= 6:
+        continue
+    brand_counts[brand] = brand_counts.get(brand, 0) + 1
+    diverse.append(row)
+(BASE / "products.json").write_text(json.dumps(diverse[:40], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+print(f"{len(diverse[:40])} passende kledingproducten van {len(brand_counts)} merken opgeslagen.")

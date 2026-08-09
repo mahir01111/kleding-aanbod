@@ -46,7 +46,17 @@ def card(row):
 
 
 ordered = sorted(products, key=lambda row: (not row.get("verified_discount", False), row.get("category") != "sportshirt", row["candidate_id"] != winner_id, -row["local_score"], row["price"]))
-ordered = ordered[:10]
+# Dagelijkse top 10 met maximaal twee producten per merk voor bruikbare variatie.
+top, top_brands = [], {}
+for row in ordered:
+    brand = (row.get("brand") or row.get("seller") or "onbekend").lower()
+    if top_brands.get(brand, 0) >= 2:
+        continue
+    top_brands[brand] = top_brands.get(brand, 0) + 1
+    top.append(row)
+    if len(top) == 10:
+        break
+ordered = top
 shirts = [row for row in ordered if row.get("category") == "sportshirt"]
 shorts = [row for row in ordered if row.get("category") == "korte sportbroek"]
 other = [row for row in ordered if row not in shirts and row not in shorts]

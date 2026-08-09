@@ -29,6 +29,8 @@ De automatische collector combineert browseronderzoek met `verified-products.jso
 
 Een product verschijnt uitsluitend wanneer er een productfoto beschikbaar is en ten minste één aannemelijke maat uit XL, XXL/2XL of een passende Short/Tall-variant op voorraad is aangetroffen. Donkergroen en andere zeer donkere kleuren zijn toegestaan wanneer materiaal, kleurdiepte en overige bewijzen de kans op zichtbaar nat-droogcontrast voldoende beperken.
 
+De collector gebruikt per winkel officiële collectiepagina's, vaste technische productingangen en twee onafhankelijke zoekroutes. Hij begrijpt zowel Product als ProductGroup/variant-data, controleert alleen selecteerbare XL/XXL-knoppen en beperkt de mail tot maximaal twee producten per merk. Reviews over andere kleuren blokkeren een geschikt zwart product niet meer per ongeluk.
+
 ## Lokaal testen
 
 ```powershell
