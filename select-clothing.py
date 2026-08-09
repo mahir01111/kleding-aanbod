@@ -12,7 +12,7 @@ if not source:
     print("Geen producten voor beoordeling; AI niet aangeroepen.")
     raise SystemExit(0)
 
-fields = ("candidate_id", "category", "name", "brand", "price", "sale", "seller", "description", "color", "material", "rating_value", "review_count", "review_text", "local_score", "evidence", "concerns", "size_advice", "available_sizes", "image")
+fields = ("candidate_id", "category", "name", "brand", "price", "verified_discount", "discount_percent", "seller", "description", "color", "material", "rating_value", "review_count", "review_text", "local_score", "sweat_evidence_score", "sweat_evidence_reasons", "negative_review_signals", "fit_confidence_score", "fit_note", "matching_sizes", "return_risk", "return_note")
 candidates = [{key: row.get(key) for key in fields} for row in source[:20]]
 ids = [row["candidate_id"] for row in candidates]
 fallback = {
@@ -28,6 +28,7 @@ if not token:
 
 prompt = """Je bent een uiterst kritische Nederlandse aankoopagent voor sportkleding. De koper is een gespierde man van 38 jaar, 183 cm en 100 kg. Zoek T-shirts en korte broeken voor intensieve training waarbij vochtplekken zo min mogelijk zichtbaar worden. Doe geen marketingaannames. Betrouwbaar advies vereist zowel een donkere, gemêleerde of druk bedrukte kleur die nat-droogcontrast beperkt als expliciet sneldrogend of vochtafvoerend technisch materiaal. Reviews over zweet, natte plekken, ademend vermogen en pasvorm wegen zwaar. Katoenrijke of lichte effen kleding is ongeschikt. XL-2XL is slechts een zoekvenster; zonder borst-, taille- en heupmaat mag je geen maat garanderen. Een aanbieding komt hoger bij gelijke geschiktheid, maar korting mag nooit een zwakker product winnen. Geef 4 sterren alleen bij sterk concreet bewijs, 3 bij behoorlijk bewijs met kleine onzekerheid, 2 bij wezenlijke onzekerheid en 1 bij afwijzen. Verzin geen review, korting, maat of eigenschap. Gebruik alleen candidate_id, nooit URL's. Antwoord uitsluitend als JSON met winner_id en ratings (candidate_id, stars, reason)."""
 user_data = {"shopper": config["shopper"], "candidates": candidates}
+prompt += """ Behandel alleen verified_discount als bewezen aanbieding. Een negatieve review over zweetvlekken of doorschijnen is reden tot afwijzing. Weeg sweat_evidence_score, fit_confidence_score en retourrisico expliciet mee. Marketingclaims zonder praktijkbewijs mogen maximaal 3 sterren krijgen."""
 payload = {"model": "openrouter/free", "messages": [{"role": "system", "content": prompt}, {"role": "user", "content": json.dumps(user_data, ensure_ascii=False)}], "temperature": 0.1, "max_tokens": 4000}
 request = urllib.request.Request("https://openrouter.ai/api/v1/chat/completions", data=json.dumps(payload).encode(), method="POST", headers={"Authorization": f"Bearer {token}", "Content-Type": "application/json", "X-Title": "Kleding Aanbod"})
 try:

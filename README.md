@@ -16,7 +16,9 @@ Maak een nieuwe GitHub-repository en voeg uitsluitend deze secrets toe:
 
 Gebruik bij voorkeur aparte provideraccounts of aparte kledingkeys. De workflow gebruikt eigen secretnamen en kan daardoor nooit per ongeluk Mercedes-secrets aanspreken.
 
-De workflow controleert tweemaal per dag, maar zoekt maximaal eens per 72 uur en maximaal 10 keer per kalendermaand. Na de eerste mail wordt alleen opnieuw gemaild bij een nieuw passend product of een lagere prijs.
+De workflow controleert tweemaal per dag, maar zoekt maximaal eens per 72 uur en maximaal 10 keer per kalendermaand. Na de eerste mail wordt alleen opnieuw gemaild bij een nieuw passend product, een gemeten prijsdaling of sterker zweetbewijs.
+
+De applicatie bewaart maximaal 24 prijswaarnemingen per product. Alleen een daling tegenover een eigen eerdere waarneming heet een bewezen aanbieding. Dubbele producten worden verwijderd. Reviews worden gecontroleerd op positieve en negatieve signalen over zweetplekken en doorschijnen. De mail toont daarnaast een zweetbewijsscore, persoonlijke maatkans, passende live maten en retourrisico. Negatieve relevante reviews, ontbrekende maatvoorraad, ontbrekende foto of onvoldoende bewijs blokkeren een product.
 
 Volledige onzichtbaarheid van zweet kan niet op afstand worden gegarandeerd. De selectie minimaliseert het risico en moet onzekerheid expliciet tonen. Zonder voldoende onderbouwing wordt geen product gemaild.
 
