@@ -2,8 +2,8 @@ name: Kleding-aanbod per e-mail
 
 on:
   schedule:
-    # Los van Mercedes; controle om 05:43 en 17:43 UTC, maximaal eens per 72 uur echt zoeken.
-    - cron: '43 5,17 * * *'
+    # Twee UTC-momenten vangen zomer- en wintertijd op; Python laat alleen 20:55 NL door.
+    - cron: '55 18,19 * * *'
   workflow_dispatch:
 
 concurrency:
@@ -24,7 +24,7 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Reserveer maximaal 10 kledingruns per maand
+      - name: Reserveer dagelijkse Nederlandse avondrun
         id: reserve
         env:
           FORCE_RUN: ${{ github.event_name == 'workflow_dispatch' }}
@@ -57,7 +57,7 @@ jobs:
         id: report
         if: steps.reserve.outputs.allowed == 'true'
         run: python make-report.py
-      - name: Mail alleen bij nieuw aanbod of prijsdaling
+      - name: Mail dagelijkse top 10
         if: steps.reserve.outputs.allowed == 'true' && steps.report.outputs.should_send == 'true'
         env:
           CLOTHING_RESEND_API_KEY: ${{ secrets.CLOTHING_RESEND_API_KEY }}
