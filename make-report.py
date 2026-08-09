@@ -16,7 +16,6 @@ def likely_size(size):
 
 
 products = [row for row in all_products if row.get("purchase_ready") and row.get("image") and any(likely_size(size) for size in row.get("matching_sizes", row.get("available_sizes", []))) and int(ratings.get(row["candidate_id"], {}).get("stars", 0)) >= 3]
-new_or_lower = [row for row in products if row["url"] not in old or row["price"] < old[row["url"]].get("price", float("inf")) or row.get("evidence_version", 1) > old[row["url"]].get("evidence_version", 0) or row.get("sweat_evidence_score", 0) > old[row["url"]].get("sweat_evidence_score", 0)]
 
 
 def card(row):
@@ -47,6 +46,7 @@ def card(row):
 
 
 ordered = sorted(products, key=lambda row: (not row.get("verified_discount", False), row.get("category") != "sportshirt", row["candidate_id"] != winner_id, -row["local_score"], row["price"]))
+ordered = ordered[:10]
 shirts = [row for row in ordered if row.get("category") == "sportshirt"]
 shorts = [row for row in ordered if row.get("category") == "korte sportbroek"]
 other = [row for row in ordered if row not in shirts and row not in shorts]
@@ -63,7 +63,8 @@ body{{font-family:Arial,sans-serif;background:#f4f5f7;color:#17202a;margin:0;pad
 </style></head><body><main><h1>Sportshirts en korte broeken</h1><p>Voor een gespierde man van 183 cm en 100 kg. Alleen donkere/patroonrijke kleding met expliciet technisch materiaal wordt toegelaten. Aanbiedingen staan hoger bij gelijke geschiktheid.</p><p><b>Belangrijk:</b> volledige onzichtbaarheid van zweet kan online niet worden gegarandeerd. De agent selecteert de laagste aantoonbare kans en benoemt onzekerheid.</p>{content}<small>Gemaakt op {datetime.now().astimezone():%d-%m-%Y %H:%M} · selectie: {html.escape(selection.get('source', 'lokale score'))}</small></main></body></html>'''
 (BASE / "kleding-aanbod.html").write_text(report, encoding="utf-8")
 
-should_send = bool(products and (new_or_lower or not old))
+should_send = bool(ordered)
+(BASE / "mail-products.json").write_text(json.dumps(ordered, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 if output := os.environ.get("GITHUB_OUTPUT"):
     with open(output, "a", encoding="utf-8") as handle:
         handle.write(f"should_send={'true' if should_send else 'false'}\n")

@@ -2,4 +2,5 @@ products.json
 selection.json
 kleding-aanbod.html
 __pycache__/
+mail-products.json
 *.pyc

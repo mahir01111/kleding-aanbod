@@ -7,7 +7,8 @@ from pathlib import Path
 
 BASE = Path(__file__).parent
 report = (BASE / "kleding-aanbod.html").read_text(encoding="utf-8")
-products = json.loads((BASE / "products.json").read_text(encoding="utf-8"))
+mail_products = BASE / "mail-products.json"
+products = json.loads(mail_products.read_text(encoding="utf-8")) if mail_products.exists() else json.loads((BASE / "products.json").read_text(encoding="utf-8"))
 now = datetime.now().astimezone()
 payload = {
     "from": "Kleding aanbod <onboarding@resend.dev>",

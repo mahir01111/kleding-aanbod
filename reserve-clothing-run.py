@@ -1,20 +1,25 @@
 import json
 import os
 from datetime import datetime, timezone
+from zoneinfo import ZoneInfo
 from pathlib import Path
 
 PATH = Path(__file__).with_name("cloud-state.json")
-MAX_RUNS = 10
-MINIMUM_HOURS = 72
+MAX_RUNS = 31
+MINIMUM_HOURS = 20
 force = os.environ.get("FORCE_RUN", "").lower() == "true"
 now = datetime.now(timezone.utc)
+local_now = now.astimezone(ZoneInfo("Europe/Amsterdam"))
 month = now.strftime("%Y-%m")
 state = json.loads(PATH.read_text(encoding="utf-8"))
 if state.get("month") != month:
     state = {"month": month, "reserved_runs": 0, "last_reserved_at": None, "last_success_at": None}
 
-allowed = state["reserved_runs"] < MAX_RUNS
+scheduled_time = local_now.hour == 20 and 45 <= local_now.minute <= 59
+allowed = state["reserved_runs"] < MAX_RUNS and (force or scheduled_time)
 reason = "maandlimiet bereikt"
+if not force and not scheduled_time:
+    reason = "dit is niet het dagelijkse Nederlandse avondvenster"
 if allowed and state.get("last_reserved_at") and not force:
     elapsed = (now - datetime.fromisoformat(state["last_reserved_at"])).total_seconds()
     allowed = elapsed >= MINIMUM_HOURS * 3600
