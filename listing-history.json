@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-09T20:13:37.149674+00:00",
+  "updated_at": "2026-08-09T20:36:52.087010+00:00",
   "products": {
     "https://www.adidas.nl/designed-for-training-workout-t-shirt/IK9725.html": {
       "price": 40.0,
@@ -26,6 +26,58 @@
       ],
       "lowest_observed_price": 45.0,
       "sweat_evidence_score": 65
+    },
+    "https://www.nike.com/nl/t/dri-fit-legend-fitness-t-shirt-voor-heren-MmxrSJ": {
+      "price": 23.49,
+      "name": "Nike Dri-FIT Legend Fitness T-shirt voor heren",
+      "evidence_version": 1,
+      "price_observations": [
+        {
+          "at": "2026-08-09T20:36:46.964554+00:00",
+          "price": 23.49
+        }
+      ],
+      "lowest_observed_price": 23.49,
+      "sweat_evidence_score": 92
+    },
+    "https://www.underarmour.nl/nl-nl/p/ua-tech-2.0/1326413.html": {
+      "price": 30.0,
+      "name": "UA Tech™ 2.0",
+      "evidence_version": 1,
+      "price_observations": [
+        {
+          "at": "2026-08-09T20:36:46.964636+00:00",
+          "price": 30.0
+        }
+      ],
+      "lowest_observed_price": 30.0,
+      "sweat_evidence_score": 75
+    },
+    "https://www.underarmour.nl/nl-nl/p/ua-unstoppable-woven/6009361.html": {
+      "price": 39.97,
+      "name": "UA Unstoppable Woven",
+      "evidence_version": 1,
+      "price_observations": [
+        {
+          "at": "2026-08-09T20:36:46.964697+00:00",
+          "price": 39.97
+        }
+      ],
+      "lowest_observed_price": 39.97,
+      "sweat_evidence_score": 75
+    },
+    "https://www.underarmour.nl/nl-nl/p/ua-velociti-pro/6009510.html": {
+      "price": 50.0,
+      "name": "UA Velociti Pro",
+      "evidence_version": 1,
+      "price_observations": [
+        {
+          "at": "2026-08-09T20:36:46.964756+00:00",
+          "price": 50.0
+        }
+      ],
+      "lowest_observed_price": 50.0,
+      "sweat_evidence_score": 75
     }
   }
 }
