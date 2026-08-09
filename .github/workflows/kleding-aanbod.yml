@@ -51,6 +51,7 @@ jobs:
       - name: Beoordeel via gratis AI met lokale fallback
         if: steps.reserve.outputs.allowed == 'true'
         env:
+          DEEPSEEK_API_KEY: ${{ secrets.CLOTHING_DEEPSEEK_API_KEY }}
           OPENROUTER_API_KEY: ${{ secrets.CLOTHING_OPENROUTER_API_KEY }}
         run: python select-clothing.py
       - name: Maak mobielvriendelijk overzicht
