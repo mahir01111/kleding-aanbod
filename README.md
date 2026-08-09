@@ -11,10 +11,13 @@ Een product wordt alleen toegelaten als de beschikbare informatie zowel een veil
 Maak een nieuwe GitHub-repository en voeg uitsluitend deze secrets toe:
 
 - `CLOTHING_OPENROUTER_API_KEY` (optioneel; zonder sleutel werkt de lokale score)
+- `CLOTHING_DEEPSEEK_API_KEY` (primaire AI; OpenRouter blijft reserve)
 - `CLOTHING_RESEND_API_KEY`
 - `CLOTHING_MAIL_TO`
 
 Gebruik bij voorkeur aparte provideraccounts of aparte kledingkeys. De workflow gebruikt eigen secretnamen en kan daardoor nooit per ongeluk Mercedes-secrets aanspreken.
+
+De beoordelingsvolgorde is DeepSeek V4 Flash, daarna OpenRouter Free Router en ten slotte de volledig lokale score. Daardoor stopt de dagelijkse mail niet wanneer een AI-provider tijdelijk onbeschikbaar is of het DeepSeek-saldo op is.
 
 De workflow zoekt iedere avond rond 20:55 Nederlandse tijd en mailt rond 21:00 uur de beste maximaal 10 passende producten, ook als dezelfde producten opnieuw winnen. Er zijn maximaal 31 runs per kalendermaand. Aanbiedingen met een door de applicatie gemeten prijsdaling staan bovenaan; daarna bepalen zweetbewijs, AI-beoordeling, maatkans, reviews en retourrisico de volgorde.
 
