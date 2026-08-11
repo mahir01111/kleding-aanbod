@@ -18,7 +18,11 @@
       "sizes": ["XL", "XXL", "2XL"],
       "max_price_eur": 100,
       "sale_preferred_not_required": true,
-      "preferred_brands": ["Nike", "Adidas", "Under Armour", "Puma", "Reebok", "ASICS", "Decathlon"],
+      "preferred_brands": [
+        "Nike", "Adidas", "Under Armour", "Puma", "Reebok", "ASICS", "Decathlon", "Domyos",
+        "New Balance", "Craft", "Odlo", "Mizuno", "Saucony", "Brooks", "On", "Gymshark",
+        "Hummel", "Björn Borg", "Castore", "Lululemon", "The North Face", "Salomon"
+      ],
       "queries": [
         "heren performance sportshirt zwart sneldrogend",
         "heren training t-shirt moisture wicking black",
@@ -57,7 +61,10 @@
       "retailer_domains": [
         "nike.com", "adidas.nl", "underarmour.nl", "puma.com", "decathlon.nl",
         "zalando.nl", "aboutyou.nl", "intersport.nl", "aktiesport.nl", "voetbalshop.nl", "asics.com",
-        "all4running.nl", "supersales.nl"
+        "all4running.nl", "supersales.nl", "runningdirect.nl", "hardloop.nl", "sport2000.nl",
+        "sportsworld.nl", "jdsports.nl", "footlocker.nl", "wehkamp.nl", "debijenkorf.nl", "bever.nl",
+        "newbalance.nl", "craftsportswear.com", "odlo.com", "mizuno.com", "brooksrunning.com",
+        "on.com", "gymshark.com", "hummel.net", "bjornborg.com", "castore.com", "lululemon.com"
       ]
     }
   ]
