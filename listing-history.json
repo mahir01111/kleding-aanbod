@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-08-09T20:36:52.087010+00:00",
+  "updated_at": "2026-08-11T18:31:21.335999+00:00",
   "products": {
     "https://www.adidas.nl/designed-for-training-workout-t-shirt/IK9725.html": {
       "price": 40.0,
@@ -78,6 +78,19 @@
       ],
       "lowest_observed_price": 50.0,
       "sweat_evidence_score": 75
+    },
+    "https://www.underarmour.nl/nl-nl/p/heatgear/1361518.html": {
+      "price": 27.97,
+      "name": "HeatGear®",
+      "evidence_version": 1,
+      "price_observations": [
+        {
+          "at": "2026-08-11T18:31:14.600379+00:00",
+          "price": 27.97
+        }
+      ],
+      "lowest_observed_price": 27.97,
+      "sweat_evidence_score": 87
     }
   }
 }
