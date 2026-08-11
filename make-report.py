@@ -29,6 +29,7 @@ def card(row):
     sale = f'<span class="sale">BEWEZEN PRIJSDALING {row.get("discount_percent", 0)}%</span>' if row.get("verified_discount") else ""
     details = f'''<p><b>Zweetbewijsscore:</b> {int(row.get("sweat_evidence_score", 0))}/100 · {html.escape(", ".join(row.get("sweat_evidence_reasons", [])))}</p>
     <p><b>Maatkans:</b> {int(row.get("fit_confidence_score", 0))}/100 · {html.escape(row.get("fit_note", "Controleer de merkmaattabel"))}</p>
+    <p><b>Zekerheid:</b> {html.escape(row.get("sweat_confidence_label", "onbekend"))} · winkelbetrouwbaarheid {int(row.get("retailer_trust_score", 0))}/100</p>
     <p><b>Passende maten op voorraad:</b> {html.escape(", ".join(row.get("matching_sizes", [])))}</p>
     <p><b>Prijscontrole:</b> laagste gemeten prijs € {row.get("lowest_observed_price", row["price"]):.2f}</p>
     <p><b>Retourrisico:</b> {html.escape(row.get("return_risk", "onbekend"))} · {html.escape(row.get("return_note", "Controleer vóór bestellen"))}</p>'''
@@ -45,7 +46,7 @@ def card(row):
     <a href="{html.escape(row['url'], quote=True)}">Bekijk bij de winkel</a></div></article>'''
 
 
-ordered = sorted(products, key=lambda row: (not row.get("verified_discount", False), row.get("category") != "sportshirt", row["candidate_id"] != winner_id, -row["local_score"], row["price"]))
+ordered = sorted(products, key=lambda row: (-row.get("sweat_evidence_score", 0), not row.get("verified_discount", False), row["candidate_id"] != winner_id, -row.get("retailer_trust_score", 0), -row["local_score"], row["price"]))
 # Dagelijkse top 10 met maximaal twee producten per merk voor bruikbare variatie.
 top, top_brands = [], {}
 for row in ordered:

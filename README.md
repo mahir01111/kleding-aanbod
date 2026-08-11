@@ -31,6 +31,8 @@ Een product verschijnt uitsluitend wanneer er een productfoto beschikbaar is en 
 
 De collector gebruikt per winkel officiële collectiepagina's, vaste technische productingangen en twee onafhankelijke zoekroutes. Hij begrijpt zowel Product als ProductGroup/variant-data, controleert alleen selecteerbare XL/XXL-knoppen en beperkt de mail tot maximaal twee producten per merk. Reviews over andere kleuren blokkeren een geschikt zwart product niet meer per ongeluk.
 
+De brede bronlijst omvat ruim dertig officiële merkenwinkels en gevestigde sport- en modewinkels. De dagelijkse volgorde wordt eerst bepaald door de zekerheidsscore voor onzichtbare zweetplekken, daarna door een bewezen prijsdaling, winkelbetrouwbaarheid, AI-oordeel, maatkans en prijs. De niveaus zijn onvoldoende, redelijk, sterk en zeer sterk; dit blijft een bewijsweging en geen fysieke garantie.
+
 ## Lokaal testen
 
 ```powershell
