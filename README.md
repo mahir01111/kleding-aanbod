@@ -33,6 +33,8 @@ De collector gebruikt per winkel officiële collectiepagina's, vaste technische 
 
 De brede bronlijst omvat ruim dertig officiële merkenwinkels en gevestigde sport- en modewinkels. De dagelijkse volgorde wordt eerst bepaald door de zekerheidsscore voor onzichtbare zweetplekken, daarna door een bewezen prijsdaling, winkelbetrouwbaarheid, AI-oordeel, maatkans en prijs. De niveaus zijn onvoldoende, redelijk, sterk en zeer sterk; dit blijft een bewijsweging en geen fysieke garantie.
 
+Alle vaste officiële product- en collectiebronnen draaien dagelijks. De aanvullende zoeklaag rouleert dagelijks door batches van twaalf winkels, zodat de volledige brede winkellijst cyclisch wordt onderzocht zonder dat één avondrun tegen de tijdslimiet loopt.
+
 ## Lokaal testen
 
 ```powershell

@@ -7,6 +7,7 @@ import time
 import urllib.parse
 import urllib.request
 import xml.etree.ElementTree as ET
+from datetime import date
 from pathlib import Path
 
 from bs4 import BeautifulSoup
@@ -317,8 +318,14 @@ for profile in (p for p in PROFILES if p.get("enabled")):
             print(f"Product overgeslagen ({clean}): {error}")
         time.sleep(0.08)
     focused_queries = profile["queries"][:2] + [q for q in profile["queries"] if "short" in q.lower()][:1]
+    # Doorzoek dagelijks een andere brede winkelbatch. Zo blijft de run snel, terwijl alle winkels
+    # cyclisch aan bod komen en de vaste officiële product- en collectiebronnen elke dag draaien.
+    domains = profile["retailer_domains"]
+    batch_size = min(12, len(domains))
+    start = (date.today().toordinal() * batch_size) % len(domains)
+    search_domains = [domains[(start + offset) % len(domains)] for offset in range(batch_size)]
     for query in focused_queries:
-        for domain in profile["retailer_domains"]:
+        for domain in search_domains:
             try:
                 urls = search(query, domain)
             except Exception as error:
