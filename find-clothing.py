@@ -120,6 +120,10 @@ def walk_json(value):
 
 def product_from_page(url, force_browser=False):
     soup = BeautifulSoup(browser_get(url) if force_browser else get(url), "html.parser")
+    host = urllib.parse.urlparse(url).netloc.lower().removeprefix("www.")
+    lower_url = url.lower()
+    visible = soup.get_text(" ", strip=True)
+    ships_to_nl = bool(host.endswith(".nl") or host.startswith("nl.") or any(marker in lower_url for marker in ("/nl/", "/nl-nl/", "/nl_nl/")) or any(term in visible.lower() for term in ("levering in nederland", "bezorging in nederland", "netherlands", "geen douanekosten", "no customs")))
     live_sizes = selectable_sizes(soup)
     nodes = []
     for script in soup.select('script[type="application/ld+json"]'):
@@ -137,7 +141,6 @@ def product_from_page(url, force_browser=False):
             return ""
         name = meta("og:title", "twitter:title") or (soup.title.get_text(" ", strip=True) if soup.title else "")
         description = meta("og:description", "description", "twitter:description")
-        visible = soup.get_text(" ", strip=True)
         raw_price = meta("product:price:amount", "og:price:amount")
         if not raw_price:
             match = re.search(r"(?:€|EUR)\s*([0-9]{1,3}(?:[.,][0-9]{2})?)|([0-9]{1,3}(?:[.,][0-9]{2})?)\s*(?:€|EUR)", visible)
@@ -146,14 +149,13 @@ def product_from_page(url, force_browser=False):
             price = float(raw_price.replace(",", "."))
         except (TypeError, ValueError):
             return None
-        host = urllib.parse.urlparse(url).netloc.lower().removeprefix("www.")
         brand = next((brand for brand in ("Adidas", "Nike", "Under Armour", "Puma", "Reebok", "ASICS") if brand.lower() in f"{name} {description}".lower()), host.split(".")[0].title())
         return {
             "url": url, "name": name[:240], "brand": brand,
             "description": f"{description} {visible}"[:7000], "color": meta("product:color", "color"),
             "material": "", "review_text": "", "rating_value": None, "review_count": None,
             "available_sizes": live_sizes, "image": meta("og:image", "twitter:image"), "price": price,
-            "currency": meta("product:price:currency") or "EUR", "availability": meta("product:availability"), "seller": host,
+            "currency": meta("product:price:currency") or "EUR", "availability": meta("product:availability"), "seller": host, "ships_to_nl": ships_to_nl,
         }
     offer = product.get("offers") or {}
     if isinstance(offer, list):
@@ -174,7 +176,6 @@ def product_from_page(url, force_browser=False):
         price = float(str(price).replace(",", "."))
     except (TypeError, ValueError):
         price = None
-    visible = soup.get_text(" ", strip=True)
     if price is None:
         price_match = re.search(r"(?:€|EUR)\s*([0-9]{1,3}(?:[.,][0-9]{2})?)|([0-9]{1,3}(?:[.,][0-9]{2})?)\s*(?:€|EUR)", visible)
         price = float(next(group for group in price_match.groups() if group).replace(",", ".")) if price_match else None
@@ -214,7 +215,7 @@ def product_from_page(url, force_browser=False):
         "review_count": aggregate.get("reviewCount") or aggregate.get("ratingCount"),
         "available_sizes": sorted(set(available_sizes + live_sizes)),
         "image": str(image), "price": price, "currency": offer.get("priceCurrency", "EUR"),
-        "availability": str(offer.get("availability") or ""), "seller": urllib.parse.urlparse(url).netloc.removeprefix("www."),
+        "availability": str(offer.get("availability") or ""), "seller": host, "ships_to_nl": ships_to_nl,
     }
 
 

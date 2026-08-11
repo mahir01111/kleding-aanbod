@@ -13,7 +13,7 @@ old = history.get("products", {})
 
 POSITIVE = ("geen zweet", "not sweat", "no sweat", "sweat doesn't show", "sweat does not show", "niet zweetgevoelig", "blijft droog", "keeps dry")
 NEGATIVE = ("zweetvlek", "sweat mark", "shows sweat", "wet patch", "natte plek", "doorschijn", "see-through", "see through")
-OFFICIAL_STORES = ("nike.com", "adidas.nl", "underarmour.nl", "puma.com", "asics.com", "decathlon.nl", "newbalance.nl", "odlo.com", "mizuno.com", "brooksrunning.com", "on.com", "gymshark.com", "hummel.net", "bjornborg.com", "castore.com", "lululemon.com")
+OFFICIAL_STORES = ("nike.com", "adidas.nl", "underarmour.nl", "puma.com", "asics.com", "decathlon.nl", "newbalance.nl", "odlo.com", "mizuno.com", "brooksrunning.com", "on.com", "gymshark.com", "myprotein.nl", "myprotein.com", "hummel.net", "bjornborg.com", "castore.com", "lululemon.com", "vanquishfitness.com", "ryderwear.com", "aybl.com", "lskd.co", "oneractive.com", "squatwolf.com", "iciw.com", "youngla.com", "alphaleteathletics.com", "nvgtn.com", "bulk.com")
 ESTABLISHED_RETAILERS = ("zalando.nl", "aboutyou.nl", "intersport.nl", "all4running.nl", "runningdirect.nl", "hardloop.nl", "sport2000.nl", "sportsworld.nl", "wehkamp.nl", "debijenkorf.nl", "bever.nl")
 
 
@@ -82,6 +82,8 @@ for row in products:
     fit_score, matching_sizes, fit_note = size_match(row)
     return_risk, return_note = return_assessment(row)
     seller = str(row.get("seller", "")).lower()
+    url_lower = row.get("url", "").lower()
+    shipping_ok = bool(row.get("ships_to_nl") or seller.endswith(".nl") or seller.startswith("nl.") or any(x in url_lower for x in ("/nl/", "/nl-nl/", "/nl_nl/")))
     retailer_trust = 95 if any(x in seller for x in OFFICIAL_STORES) else 85 if any(x in seller for x in ESTABLISHED_RETAILERS) else 70
     previous = old.get(url, {})
     observations = list(previous.get("price_observations", []))
@@ -96,16 +98,16 @@ for row in products:
         "sweat_confidence_label": confidence_label(sweat_score), "retailer_trust_score": retailer_trust,
         "sweat_evidence_reasons": reasons, "negative_review_signals": negative_reviews,
         "fit_confidence_score": fit_score, "matching_sizes": matching_sizes, "fit_note": fit_note,
-        "return_risk": return_risk, "return_note": return_note,
+        "return_risk": return_risk, "return_note": return_note, "ships_to_nl": shipping_ok,
         "price_observations": observations[-24:], "lowest_observed_price": min(observed, default=current_price),
         "verified_discount": verified_discount,
         "discount_percent": round((prior_high - current_price) / prior_high * 100) if verified_discount else 0,
         "advertised_sale_unverified": bool(row.get("sale")) and not verified_discount,
     })
-    row["purchase_ready"] = bool(row.get("image") and matching_sizes and sweat_score >= 65 and not negative_reviews)
+    row["purchase_ready"] = bool(row.get("image") and matching_sizes and sweat_score >= 65 and not negative_reviews and shipping_ok and str(row.get("currency", "EUR")).upper() == "EUR")
     row["local_score"] = round(0.70 * sweat_score + 0.20 * fit_score + 0.10 * min(100, int(float(row.get("rating_value") or 0) * 20)))
     output.append(row)
 
-output.sort(key=lambda r: (-r["sweat_evidence_score"], not r["verified_discount"], -r["retailer_trust_score"], -r["local_score"], r.get("price", 9999)))
+output.sort(key=lambda r: (-(r["sweat_evidence_score"] // 10), not r["verified_discount"], -r["sweat_evidence_score"], -r["retailer_trust_score"], -r["local_score"], r.get("price", 9999)))
 products_path.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 print(f"{len(output)} unieke producten geanalyseerd; {sum(bool(x['purchase_ready']) for x in output)} koopwaardig.")

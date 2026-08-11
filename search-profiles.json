@@ -21,7 +21,9 @@
       "preferred_brands": [
         "Nike", "Adidas", "Under Armour", "Puma", "Reebok", "ASICS", "Decathlon", "Domyos",
         "New Balance", "Craft", "Odlo", "Mizuno", "Saucony", "Brooks", "On", "Gymshark",
-        "Hummel", "Björn Borg", "Castore", "Lululemon", "The North Face", "Salomon"
+        "Hummel", "Björn Borg", "Castore", "Lululemon", "The North Face", "Salomon",
+        "Myprotein", "Vanquish Fitness", "Ryderwear", "AYBL", "LSKD", "Oner Active",
+        "SQUATWOLF", "ICANIWILL", "YoungLA", "Alphalete", "NVGTN", "Bulk"
       ],
       "queries": [
         "heren performance sportshirt zwart sneldrogend",
@@ -40,7 +42,11 @@
         "https://eu.puma.com/nl/nl/pd/pwrtrain-trainings-t-shirt-voor-heren/528527",
         "https://www.decathlon.nl/p/trainings-t-shirt-heren-zwart/_/R-p-372361",
         "https://www.underarmour.nl/nl-nl/p/ua-tech-2.0/1326413.html?dwvar_1326413_color=001",
-        "https://www.underarmour.nl/nl-nl/p/ua-performance-tech/1383878.html?dwvar_1383878_color=001"
+        "https://www.underarmour.nl/nl-nl/p/ua-performance-tech/1383878.html?dwvar_1383878_color=001",
+        "https://nl.gymshark.com/products/gymshark-conditioning-club-oversized-t-shirt-black-ss25",
+        "https://nl.gymshark.com/products/gymshark-arrival-regular-fit-t-shirt-black-ss22",
+        "https://nl.gymshark.com/products/gymshark-geo-seamless-t-shirt-black-charcoal-grey-ss23",
+        "https://nl.gymshark.com/products/gymshark-oversized-performance-t-shirt-black-ss24"
       ],
       "safe_colors": ["zwart", "black", "donkerblauw", "navy", "midnight", "antraciet", "dark", "print", "pattern", "gemêleerd", "donkergroen", "dark green", "forest green", "bottle green", "night cargo", "diepgroen", "donkerpaars", "burgundy"],
       "discovery_pages": [
@@ -56,7 +62,11 @@
         "https://www.zalando.nl/sportshirts-heren-sale/",
         "https://www.zalando.nl/sportshorts-heren-sale/",
         "https://www.all4running.nl/hardloopkleding/hardloopshirts/heren",
-        "https://www.supersales.nl/sport-vrije-tijd/heren-sportshirts"
+        "https://www.supersales.nl/sport-vrije-tijd/heren-sportshirts",
+        "https://nl.gymshark.com/collections/t-shirts-tops/mens",
+        "https://nl.gymshark.com/collections/shorts/mens",
+        "https://www.myprotein.nl/c/clothing/mens/tops/t-shirts/",
+        "https://www.myprotein.nl/c/clothing/mens/bottoms/shorts/"
       ],
       "retailer_domains": [
         "nike.com", "adidas.nl", "underarmour.nl", "puma.com", "decathlon.nl",
@@ -64,7 +74,9 @@
         "all4running.nl", "supersales.nl", "runningdirect.nl", "hardloop.nl", "sport2000.nl",
         "sportsworld.nl", "jdsports.nl", "footlocker.nl", "wehkamp.nl", "debijenkorf.nl", "bever.nl",
         "newbalance.nl", "craftsportswear.com", "odlo.com", "mizuno.com", "brooksrunning.com",
-        "on.com", "gymshark.com", "hummel.net", "bjornborg.com", "castore.com", "lululemon.com"
+        "on.com", "gymshark.com", "myprotein.nl", "myprotein.com", "hummel.net", "bjornborg.com", "castore.com", "lululemon.com",
+        "vanquishfitness.com", "ryderwear.com", "aybl.com", "lskd.co", "oneractive.com", "squatwolf.com",
+        "iciw.com", "youngla.com", "alphaleteathletics.com", "nvgtn.com", "bulk.com"
       ]
     }
   ]

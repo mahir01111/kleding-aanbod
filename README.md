@@ -35,6 +35,8 @@ De brede bronlijst omvat ruim dertig officiële merkenwinkels en gevestigde spor
 
 Alle vaste officiële product- en collectiebronnen draaien dagelijks. De aanvullende zoeklaag rouleert dagelijks door batches van twaalf winkels, zodat de volledige brede winkellijst cyclisch wordt onderzocht zonder dat één avondrun tegen de tijdslimiet loopt.
 
+Ook internationale gymmerken zoals Gymshark, Myprotein, Vanquish, Ryderwear, AYBL, LSKD, Oner Active, SQUATWOLF, ICANIWILL, YoungLA en Alphalete worden onderzocht. Een product komt alleen in de mail met aannemelijke levering naar Nederland, een europrijs, productfoto en een live beschikbare XL/XXL/2XL. Korting is niet verplicht; een bewezen prijsdaling krijgt voorrang binnen dezelfde zekerheidscategorie.
+
 ## Lokaal testen
 
 ```powershell

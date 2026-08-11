@@ -46,7 +46,7 @@ def card(row):
     <a href="{html.escape(row['url'], quote=True)}">Bekijk bij de winkel</a></div></article>'''
 
 
-ordered = sorted(products, key=lambda row: (-row.get("sweat_evidence_score", 0), not row.get("verified_discount", False), row["candidate_id"] != winner_id, -row.get("retailer_trust_score", 0), -row["local_score"], row["price"]))
+ordered = sorted(products, key=lambda row: (-(row.get("sweat_evidence_score", 0) // 10), not row.get("verified_discount", False), -row.get("sweat_evidence_score", 0), row["candidate_id"] != winner_id, -row.get("retailer_trust_score", 0), -row["local_score"], row["price"]))
 # Dagelijkse top 10 met maximaal twee producten per merk voor bruikbare variatie.
 top, top_brands = [], {}
 for row in ordered:
